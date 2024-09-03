@@ -1,6 +1,6 @@
 package log
 
-/*import (
+import (
 	"fmt"
 	api "lab/log/api/v1"
 	"os"
@@ -52,16 +52,70 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 }
 
 func (s *segment) Append(record *api.Record) (uint64, error) {
+	offset := s.nextOffset
+
+	_, pos, err := s.store.Append(record.GetValue())
+	if err != nil {
+		return 0, err
+	}
+
+	if err = s.index.Write(
+		// Index offsets are relative to the base offset on the store file
+		uint32(s.nextOffset-uint64(s.baseOffset)),
+		pos,
+	); err != nil {
+		return 0, err
+	}
+
+	s.nextOffset++
+
+	return offset, nil
 }
 
 func (s *segment) Read(offset uint64) (*api.Record, error) {
+	_, pos, err := s.index.Read(int64(offset - s.baseOffset))
+	if err != nil {
+		return nil, err
+	}
+
+	value, err := s.store.Read(pos)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.Record{Value: value, Offset: offset}, nil
 }
 
 func (s *segment) IsMaxed() bool {
+	isStoreMaxed := s.store.size >= s.config.Segment.MaxStoreBytes
+	isIndexMaxed := s.index.size >= s.config.Segment.MaxIndexBytes
+	return isStoreMaxed || isIndexMaxed
 }
 
 func (s *segment) Remove() error {
+	if err := s.Close(); err != nil {
+		return err
+	}
+
+	if err := os.Remove(s.index.Name()); err != nil {
+		return err
+	}
+
+	if err := os.Remove(s.store.Name()); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *segment) Close() error {
-}*/
+	if err := s.store.Close(); err != nil {
+		return err
+	}
+
+	if err := s.index.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -1,6 +1,6 @@
 package log
 
-/*import (
+import (
 	"io"
 	api "lab/log/api/v1"
 	"os"
@@ -53,4 +53,4 @@ func TestSegment(t *testing.T) {
 	s, err = newSegment(dir, 16, c)
 	require.NoError(t, err)
 	require.False(t, s.IsMaxed())
-}*/
+}
