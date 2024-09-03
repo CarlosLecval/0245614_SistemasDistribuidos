@@ -1,6 +1,6 @@
 package log
 
-/*import (
+import (
 	"io"
 	"os"
 	"testing"
@@ -49,4 +49,4 @@ func TestIndex(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, uint32(1), off)
 	require.Equal(t, entries[1].Pos, pos)
-}*/
+}
