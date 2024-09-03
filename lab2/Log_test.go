@@ -1,6 +1,6 @@
 package log
 
-/*import (
+import (
 	"io"
 	"os"
 	"testing"
@@ -129,4 +129,4 @@ func testTruncate(t *testing.T, log *Log) {
 
 	_, err = log.Read(0)
 	require.Error(t, err)
-}*/
+}

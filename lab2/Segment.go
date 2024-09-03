@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"google.golang.org/protobuf/proto"
 	api "lab/log/api/v1"
 	"os"
 	"path"
@@ -52,9 +53,14 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 }
 
 func (s *segment) Append(record *api.Record) (uint64, error) {
-	offset := s.nextOffset
+	record.Offset = s.nextOffset
 
-	_, pos, err := s.store.Append(record.GetValue())
+	b, err := proto.Marshal(record)
+	if err != nil {
+		return 0, err
+	}
+
+	_, pos, err := s.store.Append(b)
 	if err != nil {
 		return 0, err
 	}
@@ -69,7 +75,7 @@ func (s *segment) Append(record *api.Record) (uint64, error) {
 
 	s.nextOffset++
 
-	return offset, nil
+	return record.Offset, nil
 }
 
 func (s *segment) Read(offset uint64) (*api.Record, error) {
@@ -83,7 +89,12 @@ func (s *segment) Read(offset uint64) (*api.Record, error) {
 		return nil, err
 	}
 
-	return &api.Record{Value: value, Offset: offset}, nil
+	record := &api.Record{}
+	if err = proto.Unmarshal(value, record); err != nil {
+		return nil, err
+	}
+
+	return record, nil
 }
 
 func (s *segment) IsMaxed() bool {
