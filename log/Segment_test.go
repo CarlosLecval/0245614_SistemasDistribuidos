@@ -1,8 +1,8 @@
 package log
 
 import (
+	api "github.com/CarlosLecval/log_server/api/v1"
 	"io"
-	api "lab/log/api/v1"
 	"os"
 	"testing"
 

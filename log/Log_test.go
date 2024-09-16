@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
+	api "github.com/CarlosLecval/log_server/api/v1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
-	api "lab/log/api/v1"
 )
 
 func TestLog(t *testing.T) {
